@@ -1,0 +1,20 @@
+{
+  "name": "Trenes — Próximos trenes y alertas por proximidad",
+  "short_name": "Trenes",
+  "description": "Consultá los próximos trenes del Sarmiento, guardá recorridos favoritos y recibí un aviso cuando te acerques a la estación de origen.",
+  "start_url": "/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fcfbf9",
+  "theme_color": "#c2660e",
+  "lang": "es-AR",
+  "icons": [
+    {
+      "src": "/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
