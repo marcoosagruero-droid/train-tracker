@@ -16,6 +16,7 @@ const AuthPage = lazy(() => import("./pages/Auth.tsx"));
 const Dashboard = lazy(() => import("./pages/Dashboard.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 const Recorridos = lazy(() => import("./pages/app/Recorridos.tsx"));
+const Horarios = lazy(() => import("./pages/app/Horarios.tsx"));
 const CercaDeMi = lazy(() => import("./pages/app/CercaDeMi.tsx"));
 const Mapa = lazy(() => import("./pages/app/Mapa.tsx"));
 const Ajustes = lazy(() => import("./pages/app/Ajustes.tsx"));
@@ -143,6 +144,7 @@ createRoot(document.getElementById("root")!).render(
                 }
               >
                 <Route index element={<Recorridos />} />
+                <Route path="horarios" element={<Horarios />} />
                 <Route path="cerca" element={<CercaDeMi />} />
                 <Route path="mapa" element={<Mapa />} />
                 <Route path="ajustes" element={<Ajustes />} />

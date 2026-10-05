@@ -31,6 +31,7 @@ avisa cuando entrás al radio de la estación de origen con el próximo tren.
 | --- | --- |
 | `/` | Landing con la propuesta, cómo funciona y llamados a crear cuenta |
 | `/dashboard` | **Mis recorridos**: favoritos, próximo tren, cuenta regresiva, editar/borrar/activar alertas |
+| `/dashboard/horarios` | **Horarios por estación**: tabla de salidas de cualquier estación, ambos sentidos y tipo de día |
 | `/dashboard/cerca` | **📍 Cerca de mí**: estaciones cercanas, distancia y próximo tren |
 | `/dashboard/mapa` | Mapa esquemático offline con tu posición, orígenes vigilados y radio |
 | `/dashboard/ajustes` | Radio (200 m/500 m/1 km), dwell, cooldown, reglas de aviso, fuente de datos, privacidad |

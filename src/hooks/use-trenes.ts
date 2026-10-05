@@ -12,7 +12,7 @@ import { computeUpcomingTrains } from "@/lib/trenes/nextTrain";
 import { deriveAlertStatus, type AlertStatus } from "@/lib/trenes/permissions";
 import { getStation } from "@/lib/trenes/stations";
 import { diaForNow, nowArtMinutes } from "@/lib/trenes/time";
-import type { FavoriteRoute, ScheduleBundle, UpcomingTrain } from "@/lib/trenes/types";
+import type { DiaTipo, FavoriteRoute, ScheduleBundle, Sentido, UpcomingTrain } from "@/lib/trenes/types";
 
 export function useTrenesState(): TrenesState {
   return useSyncExternalStore(subscribeTrenes, getTrenesState, getTrenesState);
@@ -138,6 +138,72 @@ export function useRouteViews(now: number, refreshToken = 0): RouteView[] {
       };
     });
   }, [state.favorites, slots, now]);
+}
+
+/**
+ * Timetable for one station and one direction, used by the «Horarios» screen
+ * (station board, like the official app). `dia` lets the user ask for a
+ * weekday / Saturday / Sunday timetable explicitly.
+ */
+export interface StationTimetable {
+  bundle: ScheduleBundle | null;
+  error: string | null;
+  loading: boolean;
+}
+
+export function useStationTimetable(
+  stationId: string,
+  sentido: Sentido,
+  dia: DiaTipo,
+): StationTimetable {
+  const [entry, setEntry] = useState<{
+    key: string;
+    bundle: ScheduleBundle | null;
+    error: string | null;
+  } | null>(null);
+  const mode = useTrenesState().settings.dataSource;
+
+  useEffect(() => {
+    if (!stationId) return;
+    const destinationId = sentido === "Once" ? "once" : "moreno";
+    const requestKey = `${stationId}|${sentido}|${dia}`;
+    let cancelled = false;
+
+    const load = async () => {
+      try {
+        const bundle = await getProvider().getSchedule({
+          originId: stationId,
+          destinationId,
+          sentido,
+          dia,
+        });
+        if (!cancelled) setEntry({ key: requestKey, bundle, error: null });
+      } catch (error) {
+        if (!cancelled) {
+          setEntry({
+            key: requestKey,
+            bundle: null,
+            error: error instanceof Error ? error.message : String(error),
+          });
+        }
+      }
+    };
+
+    void load();
+    const id = window.setInterval(() => void load(), 60_000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(id);
+    };
+  }, [stationId, sentido, dia, mode]);
+
+  const requestKey = `${stationId}|${sentido}|${dia}`;
+  const current = entry && entry.key === requestKey ? entry : null;
+  return {
+    bundle: current?.bundle ?? null,
+    error: current?.error ?? null,
+    loading: !current,
+  };
 }
 
 /**

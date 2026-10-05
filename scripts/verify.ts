@@ -140,7 +140,17 @@ if (trains[0]) {
   );
   const notification = buildNotification(trains[0]);
   check("la notificación nombra origen y destino", notification.body.includes("Merlo → Liniers"), notification.body);
-  check("la notificación incluye la cuenta regresiva", /sale en \d+ minutos/.test(notification.body), notification.body);
+  check(
+    "la notificación incluye la cuenta regresiva y la hora",
+    /sale en (este momento|\d+ minuto)/.test(notification.body) &&
+      /a las \d{2}:\d{2}/.test(notification.body),
+    notification.body,
+  );
+  check(
+    "nunca escribe «1 minutos» (singular correcto)",
+    !/\b1 minutos\b/.test(notification.body),
+    notification.body,
+  );
 }
 
 console.log("4) reglas de alerta combinables");

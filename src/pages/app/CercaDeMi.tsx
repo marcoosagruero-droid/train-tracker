@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Crosshair, Loader2, LocateFixed, MapPin, Star } from "lucide-react";
+import { Crosshair, Loader2, LocateFixed, MapPin, Star, TrainFront } from "lucide-react";
+import { Link } from "react-router";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { AlertStatusPill } from "@/components/trenes/AlertStatusPill";
@@ -235,6 +236,13 @@ export default function CercaDeMi() {
                         degradedReason={board[`${station.id}:Once`]?.degradedReason}
                       />
                     </div>
+                    <Link
+                      to={`/dashboard/horarios?estacion=${station.id}`}
+                      className="mt-1 flex items-center gap-1.5 text-xs font-medium text-[var(--brand-strong)] hover:underline"
+                    >
+                      <TrainFront className="size-3.5" />
+                      Ver horarios de {station.name}
+                    </Link>
                   </div>
                 )}
               </motion.div>

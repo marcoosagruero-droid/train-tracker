@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { LocateFixed, Loader2, MapPin } from "lucide-react";
+import { LocateFixed, Loader2, MapPin, TrainFront } from "lucide-react";
+import { useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import { ProximityMap } from "@/components/trenes/ProximityMap";
 import { SourceBadge } from "@/components/trenes/SourceBadge";
@@ -24,6 +25,7 @@ export default function Mapa() {
   const views = useRouteViews(now);
   const [highlightedId, setHighlightedId] = useState<string | undefined>();
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const position = state.position;
   const watchedIds = useMemo(
@@ -174,6 +176,17 @@ export default function Mapa() {
               );
             })()}
           </div>
+
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="mt-3 w-full gap-2"
+            onClick={() => navigate(`/dashboard/horarios?estacion=${highlighted.id}`)}
+          >
+            <TrainFront className="size-4" />
+            Ver horarios de {highlighted.name}
+          </Button>
         </motion.div>
       )}
 

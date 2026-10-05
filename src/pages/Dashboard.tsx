@@ -9,6 +9,7 @@ import {
   Moon,
   Settings2,
   Sun,
+  TrainFront,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { api } from "@/convex/_generated/api";
@@ -23,10 +24,11 @@ import { registerServiceWorker } from "@/lib/trenes/notifier";
 import { useTrenesState, useTrenesSync } from "@/hooks/use-trenes";
 
 const NAV_ITEMS = [
-  { to: "/dashboard", label: "Recorridos", icon: LayoutList, end: true },
-  { to: "/dashboard/cerca", label: "Cerca de mí", icon: MapPin },
-  { to: "/dashboard/mapa", label: "Mapa", icon: MapIcon },
-  { to: "/dashboard/ajustes", label: "Ajustes", icon: Settings2 },
+  { to: "/dashboard", label: "Recorridos", short: "Recorridos", icon: LayoutList, end: true },
+  { to: "/dashboard/horarios", label: "Horarios", short: "Horarios", icon: TrainFront, end: false },
+  { to: "/dashboard/cerca", label: "Cerca de mí", short: "Cerca", icon: MapPin, end: false },
+  { to: "/dashboard/mapa", label: "Mapa", short: "Mapa", icon: MapIcon, end: false },
+  { to: "/dashboard/ajustes", label: "Ajustes", short: "Ajustes", icon: Settings2, end: false },
 ];
 
 export default function Dashboard() {
@@ -48,7 +50,10 @@ export default function Dashboard() {
   }, [fetchSchedule]);
 
   const navItems = state.settings.testMode
-    ? [...NAV_ITEMS, { to: "/dashboard/prueba", label: "Prueba", icon: FlaskConical, end: false }]
+    ? [
+        ...NAV_ITEMS,
+        { to: "/dashboard/prueba", label: "Prueba", short: "Prueba", icon: FlaskConical, end: false },
+      ]
     : NAV_ITEMS;
 
   const handleSignOut = async () => {
@@ -75,7 +80,7 @@ export default function Dashboard() {
               <NavLink
                 key={item.to}
                 to={item.to}
-                end={"end" in item ? item.end : false}
+                end={item.end}
                 className={({ isActive }) =>
                   cn(
                     "flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
@@ -174,7 +179,7 @@ export default function Dashboard() {
             <NavLink
               key={item.to}
               to={item.to}
-              end={"end" in item ? item.end : false}
+              end={item.end}
               className={({ isActive }) =>
                 cn(
                   "flex min-w-0 flex-1 flex-col items-center gap-1 py-2.5 text-[11px] font-medium transition-colors",
@@ -185,7 +190,7 @@ export default function Dashboard() {
               }
             >
               <item.icon className="size-5" />
-              <span className="truncate">{item.label}</span>
+              <span className="truncate">{item.short}</span>
             </NavLink>
           ))}
         </div>

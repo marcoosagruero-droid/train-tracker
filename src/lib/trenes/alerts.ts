@@ -5,6 +5,7 @@ import { shouldAlert } from "./settings";
 import type {
   AlertRecord,
   AlertSettings,
+  DiaTipo,
   FavoriteRoute,
   ScheduleQuery,
   Sentido,
@@ -27,12 +28,16 @@ export interface RouteSchedule {
   nextTrain: UpcomingTrain | null;
 }
 
-export function buildQuery(origin: Station, destination: Station): ScheduleQuery {
+export function buildQuery(
+  origin: Station,
+  destination: Station,
+  dia: DiaTipo = diaForNow(),
+): ScheduleQuery {
   return {
     originId: origin.id,
     destinationId: destination.id,
     sentido: resolveDirection(origin, destination).sentido,
-    dia: diaForNow(),
+    dia,
   };
 }
 
