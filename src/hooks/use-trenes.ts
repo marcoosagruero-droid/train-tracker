@@ -53,13 +53,10 @@ interface BundleSlot {
  * Loads schedules for every favourite route, refreshes them periodically and
  * recomputes the countdowns on every ticker tick.
  */
-export function useRouteViews(now: number): RouteView[] {
+export function useRouteViews(now: number, refreshToken = 0): RouteView[] {
   const state = useTrenesState();
   const [slots, setSlots] = useState<Record<string, BundleSlot>>({});
 
-  const routeSignature = state.favorites
-    .map((r) => `${r.id}:${r.originId}-${r.destinationId}`)
-    .join("|");
   const mode = state.settings.dataSource;
 
   useEffect(() => {
@@ -95,8 +92,7 @@ export function useRouteViews(now: number): RouteView[] {
       cancelled = true;
       window.clearInterval(id);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [routeSignature, mode]);
+  }, [state.favorites, mode, refreshToken]);
 
   return useMemo(() => {
     const nowMin = nowArtMinutes(now);
@@ -141,7 +137,6 @@ export function useRouteViews(now: number): RouteView[] {
         degradedReason: slot.bundle.degradedReason,
       };
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.favorites, slots, now]);
 }
 
@@ -151,7 +146,6 @@ export function useRouteViews(now: number): RouteView[] {
  */
 export function useDepartureBoard(
   stationIds: string[],
-  now: number,
 ): Record<string, ScheduleBundle | null> {
   const [bundles, setBundles] = useState<Record<string, ScheduleBundle | null>>({});
   const mode = useTrenesState().settings.dataSource;
@@ -159,10 +153,7 @@ export function useDepartureBoard(
 
   useEffect(() => {
     const ids = key ? key.split(",") : [];
-    if (ids.length === 0) {
-      setBundles({});
-      return;
-    }
+    if (ids.length === 0) return;
     let cancelled = false;
     const provider = getProvider();
 
@@ -197,10 +188,9 @@ export function useDepartureBoard(
       cancelled = true;
       window.clearInterval(id);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key, mode]);
 
-  return bundles;
+  return key ? bundles : {};
 }
 
 /** Next train toward a terminal for one departure-board cell. */

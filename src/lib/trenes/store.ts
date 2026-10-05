@@ -13,7 +13,7 @@ import { createDataProvider, type LiveFetchFn } from "./providers";
 import type { TrainDataProvider } from "./providers/TrainDataProvider";
 import { requireStation } from "./stations";
 import { loadSettings, saveSettings } from "./settings";
-import { loadJson, loadList, removeKey, saveJson, STORAGE_KEYS } from "./storage";
+import { loadList, removeKey, saveJson, STORAGE_KEYS } from "./storage";
 import type {
   AlertRecord,
   AlertSettings,
@@ -206,11 +206,7 @@ function handleTransition(transition: GeofenceTransition) {
   const inside = new Set(state.inside);
   if (transition.type === "enter" || transition.type === "dwell") inside.add(transition.stationId);
   if (transition.type === "exit") inside.delete(transition.stationId);
-  if (inside.size !== state.inside.length) {
-    setState({ inside: [...inside] });
-  } else {
-    setState({ inside: [...inside] });
-  }
+  setState({ inside: [...inside] });
 
   const dwellSeconds = state.settings.dwellSeconds;
   if (transition.type === "enter" && dwellSeconds > 0) return; // wait for dwell

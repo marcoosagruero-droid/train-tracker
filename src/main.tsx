@@ -4,6 +4,7 @@ import { RequireAuth } from "@/components/RequireAuth";
 import { VlyToolbar } from "../vly-toolbar-readonly.tsx";
 import { ConvexAuthProvider } from "@convex-dev/auth/react";
 import { ConvexReactClient } from "convex/react";
+import { ThemeProvider } from "next-themes";
 import React, { StrictMode, useEffect, lazy, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router";
@@ -14,6 +15,11 @@ const Landing = lazy(() => import("./pages/Landing.tsx"));
 const AuthPage = lazy(() => import("./pages/Auth.tsx"));
 const Dashboard = lazy(() => import("./pages/Dashboard.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
+const Recorridos = lazy(() => import("./pages/app/Recorridos.tsx"));
+const CercaDeMi = lazy(() => import("./pages/app/CercaDeMi.tsx"));
+const Mapa = lazy(() => import("./pages/app/Mapa.tsx"));
+const Ajustes = lazy(() => import("./pages/app/Ajustes.tsx"));
+const Prueba = lazy(() => import("./pages/app/Prueba.tsx"));
 
 // Simple loading fallback for route transitions
 function RouteLoading() {
@@ -115,10 +121,11 @@ createRoot(document.getElementById("root")!).render(
         <VlyToolbar />
       </ToolbarErrorBoundary>
       <ConvexAuthProvider client={convex}>
-        <BrowserRouter>
-          <RouteSyncer />
-          <Suspense fallback={<RouteLoading />}>
-            <Routes>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <BrowserRouter>
+            <RouteSyncer />
+            <Suspense fallback={<RouteLoading />}>
+              <Routes>
               <Route path="/" element={<Landing />} />
               <Route
                 path="/auth"
@@ -127,16 +134,26 @@ createRoot(document.getElementById("root")!).render(
               <Route
                 path="/dashboard"
                 element={
-                  <RequireAuth>
+                  <RequireAuth
+                    title="Ingresá para ver tus recorridos"
+                    description="Tus recorridos favoritos, alertas por proximidad y horarios viven en tu cuenta."
+                  >
                     <Dashboard />
                   </RequireAuth>
                 }
-              />
+              >
+                <Route index element={<Recorridos />} />
+                <Route path="cerca" element={<CercaDeMi />} />
+                <Route path="mapa" element={<Mapa />} />
+                <Route path="ajustes" element={<Ajustes />} />
+                <Route path="prueba" element={<Prueba />} />
+              </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </Suspense>
-        </BrowserRouter>
-        <Toaster />
+              </Suspense>
+          </BrowserRouter>
+          <Toaster />
+        </ThemeProvider>
       </ConvexAuthProvider>
     </RootErrorBoundary>
   </StrictMode>,

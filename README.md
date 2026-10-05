@@ -17,6 +17,89 @@ All relevant files live in the 'src' directory.
 
 Use bun for the package manager.
 
+---
+
+# Trenes — próximos trenes y alertas por proximidad
+
+App de la línea **Sarmiento (Once ⇄ Moreno)**: guardás un recorrido una vez
+(`Merlo → Liniers`), la app resuelve sola estación, línea y **sentido**, y te
+avisa cuando entrás al radio de la estación de origen con el próximo tren.
+
+## Pantallas
+
+| Ruta | Qué hace |
+| --- | --- |
+| `/` | Landing con la propuesta, cómo funciona y llamados a crear cuenta |
+| `/dashboard` | **Mis recorridos**: favoritos, próximo tren, cuenta regresiva, editar/borrar/activar alertas |
+| `/dashboard/cerca` | **📍 Cerca de mí**: estaciones cercanas, distancia y próximo tren |
+| `/dashboard/mapa` | Mapa esquemático offline con tu posición, orígenes vigilados y radio |
+| `/dashboard/ajustes` | Radio (200 m/500 m/1 km), dwell, cooldown, reglas de aviso, fuente de datos, privacidad |
+| `/dashboard/prueba` | **Modo prueba**: simular entrada/salida de geofence y disparar la alerta real |
+
+## Arquitectura (una capa por responsabilidad)
+
+```
+src/lib/trenes/
+  stations.ts       StationRepository + resolveDirection(origen, destino) → sentido
+  nextTrain.ts      NextTrainCalculator (próximo tren, cuenta regresiva, llegada)
+  providers/        TrainDataProvider: live (horariostrenes) y demo, con caché/fallback
+  favorites.ts      FavoritesManager (CRUD de recorridos)
+  settings.ts       SettingsManager (radio, dwell, cooldown, reglas combinables)
+  geofence.ts       GeofenceManager (ENTER/DWELL/EXIT + histéresis + ticks)
+  permissions.ts    Flujo progresivo de permisos + estado derivado (🟢🟠🔴)
+  notifier.ts       NotificationManager (service worker en segundo plano)
+  alerts.ts         Orquestador: estación → recorridos → tren → reglas → aviso
+  store.ts          Estado observable + motor de geofencing
+src/convex/trainData.ts   Proxy propio (CORS) contra horariostrenes.com.ar
+```
+
+Documentación detallada:
+
+- [`docs/DATA_SOURCE.md`](docs/DATA_SOURCE.md) — investigación de la fuente de horarios y cómo reemplazarla.
+- [`docs/ANDROID_PORT.md`](docs/ANDROID_PORT.md) — portaje a Android nativo (Kotlin) y pasos exactos para compilar/instalar el APK.
+
+## Comandos
+
+```bash
+bun install
+bun run dev         # lo gestiona la plataforma Freebuff
+bun tsc -b --noEmit # typecheck
+bun convex dev --once   # codegen + deploy de Convex (usar --once, nunca interactivo)
+bun run verify      # verifica parser + sentido + horario demo + reglas (usa la fuente real)
+```
+
+## Cómo compilar e instalar
+
+**Web / PWA (esta entrega)**
+
+1. La plataforma Freebuff levanta el dev server y Convex automáticamente.
+2. Abrir la preview, entrar con email o como invitado → `/dashboard`.
+3. En Chrome de Android: menú → **Instalar aplicación** / **Agregar a pantalla de inicio**
+   para que quede como app independiente con su propio ícono y pantalla.
+
+**APK nativo (Android Studio)**
+
+1. Seguir [`docs/ANDROID_PORT.md`](docs/ANDROID_PORT.md) (mapeo archivo por archivo a Kotlin).
+2. `./gradlew assembleDebug` → `app/build/outputs/apk/debug/app-debug.apk`
+3. `adb install -r app/build/outputs/apk/debug/app-debug.apk`
+
+## Hoja de ruta prevista en la arquitectura
+
+| Versión | Dónde se conecta |
+| --- | --- |
+| V2 demoras / cancelaciones / cambios de servicio | `UpcomingTrain.status` + `ScheduleBundle.notices` |
+| V3 posición de trenes y predicción de llegada | nueva implementación de `TrainDataProvider` |
+| V4 widget de Android y notificación persistente | capa nativa (`docs/ANDROID_PORT.md`) |
+| V5 integración con otras apps / líneas | `StationRepository` parametrizado por `line` |
+
+## Datos
+
+Los horarios reales se piden a `horariostrenes.com.ar` desde la acción de Convex
+(proxy propio porque el sitio no envía cabeceras CORS), se cachean 5 minutos y
+nunca se presentan cifras inventadas: si no hay fuente, la app muestra **MODO
+DEMO**; si falta un dato (demora, cancelación, estado) muestra **«Información no
+disponible»**.
+
 ## Setup
 
 This project is set up already and running on a cloud environment, as well as a convex development in the sandbox.

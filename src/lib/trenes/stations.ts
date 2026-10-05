@@ -92,6 +92,24 @@ export function stationsBetween(origin: Station, destination: Station): Station[
   return SARMIENTO_STATIONS.filter((s) => s.order > from.order && s.order < to.order);
 }
 
+/** Next station in the direction of travel (`sentido`). */
+export function nextStationOnLine(
+  station: Station,
+  sentido: Sentido,
+): Station | null {
+  const index = sentido === "Once" ? station.order - 1 : station.order + 1;
+  return SARMIENTO_STATIONS[index] ?? null;
+}
+
+/** Previous station (the one the train comes from). */
+export function previousStationOnLine(
+  station: Station,
+  sentido: Sentido,
+): Station | null {
+  const index = sentido === "Once" ? station.order + 1 : station.order - 1;
+  return SARMIENTO_STATIONS[index] ?? null;
+}
+
 /** Cumulative travel time (minutes) from one station to another. */
 export function travelMinutes(origin: Station, destination: Station): number {
   if (origin.id === destination.id) return 0;

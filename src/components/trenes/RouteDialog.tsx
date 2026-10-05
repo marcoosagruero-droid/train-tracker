@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +12,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { addFavorite, updateFavorite } from "@/lib/trenes/store";
 import { getStation, resolveDirection } from "@/lib/trenes/stations";
+import { useTrenesState } from "@/hooks/use-trenes";
 import type { FavoriteRoute } from "@/lib/trenes/types";
 import { StationSelect } from "./StationSelect";
 
@@ -30,14 +31,16 @@ export function RouteDialog({
   route?: FavoriteRoute | null;
   presetOrigin?: string;
 }) {
-  const [origin, setOrigin] = useState("");
-  const [destination, setDestination] = useState("");
+  const [origin, setOrigin] = useState(route?.originId ?? presetOrigin ?? "");
+  const [destination, setDestination] = useState(route?.destinationId ?? "");
+  const state = useTrenesState();
 
-  useEffect(() => {
-    if (!open) return;
-    setOrigin(route?.originId ?? presetOrigin ?? "");
-    setDestination(route?.destinationId ?? "");
-  }, [open, route, presetOrigin]);
+  const duplicated = state.favorites.some(
+    (favorite) =>
+      favorite.id !== route?.id &&
+      favorite.originId === origin &&
+      favorite.destinationId === destination,
+  );
 
   const direction = useMemo(() => {
     if (!origin || !destination || origin === destination) return null;
@@ -54,6 +57,11 @@ export function RouteDialog({
     }
     if (origin === destination) {
       toast.error("El origen y el destino deben ser estaciones distintas.");
+      return;
+    }
+
+    if (duplicated) {
+      toast.error("Ya tenés guardado ese recorrido.");
       return;
     }
 

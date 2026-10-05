@@ -42,6 +42,23 @@ export function invalidateScheduleCache() {
   cache.clear();
 }
 
+/** Turns transport errors into a sentence a rider can act on. */
+export function humanizeSourceError(message: string): string {
+  if (/\b403\b/.test(message) || /403/.test(message)) {
+    return (
+      "La fuente de horarios rechazó la consulta desde el servidor proxy (HTTP 403). " +
+      "Se muestran datos de demostración hasta que la fuente vuelva a responder."
+    );
+  }
+  if (/timeout|timedout|abort|network|enotfound|econn|epipe|fetch failed/i.test(message)) {
+    return (
+      "No se pudo contactar a la fuente de horarios (problema de red). " +
+      "Se muestran datos de demostración."
+    );
+  }
+  return message;
+}
+
 /** Synchronous read for first paint while the network request runs. */
 export function peekSchedule(
   mode: DataSourceMode,
@@ -99,7 +116,9 @@ export function createDataProvider(options: {
         return bundle;
       } catch (error) {
         if (mode === "live") throw error;
-        const message = error instanceof Error ? error.message : String(error);
+        const message = humanizeSourceError(
+          error instanceof Error ? error.message : String(error),
+        );
         const fallback = await demoProvider.getSchedule(query);
         const degraded: ScheduleBundle = {
           ...fallback,

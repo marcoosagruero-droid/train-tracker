@@ -22,6 +22,8 @@ export function SourceBadge({
 }) {
   const isDemo = sourceLabel !== "horariostrenes.com.ar";
 
+  if (!sourceLabel || sourceLabel === "—") return null;
+
   const content = (
     <Badge
       variant="outline"

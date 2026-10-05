@@ -53,9 +53,13 @@ export const getSchedule = action({
       const response = await fetch(sourceUrl, {
         signal: controller.signal,
         headers: {
+          // Honest, identifying UA: verified to work (HTTP 200) from a normal
+          // network. See docs/DATA_SOURCE.md for the 403 findings.
           "User-Agent":
             "Trenes/1.0 (proxy propio de consulta de horarios; contacto disponible en la app)",
-          Accept: "text/html,application/xhtml+xml",
+          Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+          "Accept-Language": "es-AR,es;q=0.9",
+          Referer: "https://www.horariostrenes.com.ar/",
         },
       });
 

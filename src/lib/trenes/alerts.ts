@@ -1,4 +1,4 @@
-import { computeUpcomingTrains, nextTrainFor } from "./nextTrain";
+import { computeUpcomingTrains } from "./nextTrain";
 import { diaForNow, formatHhmm, nowArtMinutes, spokenRemaining } from "./time";
 import { getStation, requireStation, resolveDirection } from "./stations";
 import { shouldAlert } from "./settings";
@@ -227,7 +227,7 @@ export async function evaluateStation(
       }
     }
 
-    const { title, body, tag } = buildNotification(train);
+    const { title, body } = buildNotification(train);
     const record: AlertRecord = {
       id: `${stationId}|${route.id}|${train.departureMin}|${now}`,
       stationId,
